@@ -60,7 +60,7 @@ void AInvader::BeginPlay()
 
 	// Generate a Bullet Template of the correct class
 	if (bulletClass->IsChildOf<ABullet>())
-		bulletTemplate = NewObject<ABullet>(this, bulletClass->GetFName(), RF_NoFlags, bulletClass.GetDefaultObject());
+		bulletTemplate = NewObject<ABullet>(this, bulletClass);
 	else
 		bulletTemplate = NewObject<ABullet>();
 
@@ -127,8 +127,10 @@ void AInvader::Fire() {
 		FActorSpawnParameters spawnParameters;
 		spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		spawnParameters.Template = this->bulletTemplate;
-		spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(spawnLocation, spawnRotation, spawnParameters);
-
+		if(bulletClass!= nullptr)
+			spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(bulletClass,spawnLocation, spawnRotation, spawnParameters);
+		else
+			spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(spawnLocation, spawnRotation, spawnParameters);
 		if (AudioComponent != nullptr && AudioShoot != nullptr) {
 			AudioComponent->SetSound(AudioShoot);
 			AudioComponent->Play();

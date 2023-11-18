@@ -61,8 +61,6 @@ void AInvaderSquad::Initialize() {
 
 }
 
-
-// Called when the game starts or when spawned
 void AInvaderSquad::BeginPlay()
 {
 	Super::BeginPlay();
@@ -83,11 +81,12 @@ void AInvaderSquad::BeginPlay()
 	}
 
 	// Set Invader Template with Default Value for invaderClass
-	if (invaderClass->IsChildOf<AInvader>())
-		invaderTemplate = NewObject<AInvader>(this, invaderClass->GetFName(), RF_NoFlags, invaderClass.GetDefaultObject());
+	if (invaderClass->IsChildOf<AInvader>()) {
+		invaderTemplate = NewObject<AInvader>(this, invaderClass);
+	}
 	else
 		invaderTemplate = NewObject<AInvader>();
-	
+
 	//Spawn Invaders
 
 	FVector actorLocation = GetActorLocation();
@@ -103,11 +102,21 @@ void AInvaderSquad::BeginPlay()
 
 		for (int j = 0; j < this->nRows; j++)
 		{
-			//invaderTemplate->SetPositionInSquad(count);
-
 			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			spawnParameters.Template = invaderTemplate;
-			spawnedInvader = GetWorld()->SpawnActor<AInvader>(spawnLocation, spawnRotation, spawnParameters);
+			if(invaderClass!=nullptr)
+				spawnedInvader = GetWorld()->SpawnActor<AInvader>(invaderClass, spawnLocation, spawnRotation, spawnParameters);
+			else
+				spawnedInvader = GetWorld()->SpawnActor<AInvader>(spawnLocation, spawnRotation, spawnParameters);
+
+			if (spawnedInvader == nullptr) {
+
+				GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("%d %d null invader"), i, j));
+				break;
+			}
+
+			//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%d %d valid invader"), i, j));
+
 			spawnedInvader->SetPositionInSquad(count);
 			++count;
 			SquadMembers.Add(spawnedInvader);

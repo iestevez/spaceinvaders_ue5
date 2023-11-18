@@ -24,9 +24,9 @@ ASIPawn::ASIPawn()
 	AudioExplosion{},
 	bFrozen{ false },
 	bPause{ false },
-	MyGameMode{},
 	playerLifes{ 3 },
-	playerPoints{ 0 }
+	playerPoints{ 0 },
+	MyGameMode{}
 {
 	
 	PrimaryActorTick.bCanEverTick = true;
@@ -128,13 +128,15 @@ void ASIPawn::OnFire() {
 	FVector spawnLocation = GetActorLocation();
 	FRotator spawnRotation = GetActorRotation();
 	ABullet* spawnedBullet;
-	bulletTemplate->velocity = bulletVelocity;
-	bulletTemplate->dir = GetActorForwardVector();
+	this->bulletTemplate->velocity = bulletVelocity;
+	this->bulletTemplate->dir = GetActorForwardVector();
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	spawnParameters.Template = bulletTemplate;
-	spawnedBullet = Cast<ABullet>(GetWorld()->SpawnActor(bulletClass, &spawnLocation, &spawnRotation, spawnParameters));
-
+	spawnParameters.Template = this->bulletTemplate;
+	if(bulletClass!= nullptr)
+		spawnedBullet = Cast<ABullet>(GetWorld()->SpawnActor<ABullet>(bulletClass, spawnLocation, spawnRotation, spawnParameters));
+	else
+		spawnedBullet = Cast<ABullet>(GetWorld()->SpawnActor<ABullet>(spawnLocation, spawnRotation, spawnParameters));
 	if (AudioComponent != nullptr && AudioShoot != nullptr) {
 		AudioComponent->SetSound(AudioShoot);
 	}
